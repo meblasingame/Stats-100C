@@ -1,0 +1,31 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 5
+
+With Intercept:
+```{r}
+#Create the X matrix
+X <- cbind(c(1,1,1), c(-1,0,1), c(1,-2,1))
+
+#find the H (hat) matrix
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+
+#find the column sums of H
+colSums(H)
+```
+
+Without Intercept:
+```{r}
+#Create the X matrix
+X <- cbind(c(-1,0,1), c(1,-2,1))
+
+#find the H (hat) matrix
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+
+#find the column sums of H
+colSums(H)
+```
+

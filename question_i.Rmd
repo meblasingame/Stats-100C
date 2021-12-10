@@ -1,0 +1,100 @@
+---
+output: html_document
+---
+Read in and create data
+```{r}
+a <- read.table("http://www.stat.ucla.edu/~nchristo/statistics_c173_c273/jura.txt", header=TRUE)
+y <- a$Pb
+
+x1 <- a$Cd
+x2 <- a$Co
+x3 <- a$Cr
+x4 <- a$Cu
+x5 <- a$Ni
+x6 <- a$Zn
+
+ones <- rep(1, nrow(a))
+X <- as.matrix(cbind(ones,x1, x2, x3, x4, x5, x6))
+X1 <- as.matrix(cbind(ones,x1, x2, x3, x4))
+X2 <- as.matrix(cbind(x5, x6))
+```
+
+### Question i
+Part 1:
+```{r}
+#H1 Matrix
+H1 <- X1 %*% solve(t(X1) %*% X1) %*% t(X1)
+#H matrix
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+
+#H-H1 Matrix
+mat <- round((H - H1) %*% (H - H1))
+
+identical(round((H - H1)), mat)
+```
+
+The matrix (H-H1)(H-H1) is the same as the matrix (H-H1) which means that (H-H1) must be idempotent.
+
+Part 2:
+
+```{r}
+#Beta hat using full regression
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+
+H1 <- X1 %*% solve(t(X1) %*% X1) %*% t(X1)
+X22 <- (diag(nrow(a)) - H1) %*% X2
+y11 <- (diag(nrow(a)) - H1) %*% y
+
+#Beta hat 1 from partial regression
+beta_hat2 <- solve(t(X22) %*% X22) %*% t(X22) %*% y11
+
+#Beta hat 2 from partial regression
+beta_hat1 <- solve(t(X1) %*% X1) %*% t(X1) %*% y - solve(t(X1) %*% X1) %*% t(X1) %*% X2 %*% beta_hat2
+
+
+beta_hat
+beta_hat1
+beta_hat2
+```
+
+As you can see, the values of $\hat{\beta}_0...\hat{\beta}_5$ from full regression match the values of $\hat{\beta}_0...\hat{\beta}_3$ and $\hat{\beta}_4, \hat{\beta}_5$ found using partial regression.
+
+### Question j
+
+Lagrange
+```{r}
+ones <- rep(1, nrow(a))
+X <- as.matrix(cbind(ones,x1, x2, x3, x4))
+C <- as.matrix(rbind(c(1,2,-3,5,-1), c(2,-1,1,3,0)))
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+gamma <- as.matrix(rbind(5,10))
+
+#Beta hat using the constrained model
+beta_hat_c <- beta_hat - solve(t(X) %*% X) %*% t(C) %*% solve(C %*% solve(t(X) %*% X) %*% t(C)) %*% (C %*% beta_hat - gamma)
+beta_hat_c
+```
+
+
+Canonical 
+```{r}
+C1 <- as.matrix(rbind(c(1,2), c(2,-1)))
+C2 <- as.matrix(rbind(c(-3,5,-1), c(1,3,0)))
+X1 <- as.matrix(cbind(ones,x1))
+X2 <- as.matrix(cbind(x2, x3, x4))
+
+
+Yr <- y - X1 %*% solve(C1) %*% gamma
+X2r <- X2 - X1 %*% solve(C1) %*% C2
+
+#Beta hat 1 and beta hat 2 using the constrained model
+beta_hat_2c <- solve(t(X2r) %*% X2r) %*% t(X2r) %*% Yr
+beta_hat_1c <- solve(C1) %*% (gamma - C2 %*% beta_hat_2c)
+
+beta_hat_1c
+beta_hat_2c
+```
+
+As you can see, the values of $\hat{\beta}_{c0}...\hat{\beta}_{c4}$ obtained using Lagrange multipliers are the same as the values of $\hat{\beta}_{c0}, \hat{\beta}_{c1}$ and $\hat{\beta}_{c2}...\hat{\beta}_{c4}$ obtained using the canonical form of the model. 
+
+
+

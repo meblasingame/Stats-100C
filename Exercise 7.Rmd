@@ -1,0 +1,67 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 7
+
+Load data and see the first 6 rows
+
+```{r}
+a <- read.table("http://www.stat.ucla.edu/~nchristo/statistics100C/jura.txt", header=TRUE)
+
+#See the first six rows of the data:
+head(a)
+```
+
+Create the X and Y matrices (assuming an intercept):
+```{r}
+X <- as.matrix(cbind(rep(1, nrow(a)),a$Cd, a$Cu, a$Zn))
+Y <- as.matrix(cbind(a$Pb))
+```
+
+### 1a. Compute (X'X)
+```{r}
+xx <- t(X) %*% X
+xx
+```
+
+### 1b. Compute (X'X)^-1
+```{r}
+xx_inverse <- solve(xx)
+xx_inverse
+```
+
+### 1c. Compute (X'Y)
+```{r}
+xy <- t(X) %*% Y
+xy
+```
+
+### 2. Compute B Hat (the beta_hat vector)
+
+```{r}
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% Y
+beta_hat
+```
+
+### 3. Compute H (the hat matrix)
+
+```{r}
+hat <- X %*% solve(t(X) %*% X) %*% t(X)
+head(hat[,1])
+```
+
+### 4. Compute Y hat (the fitted values)
+
+```{r}
+Yhat <- X%*% beta_hat
+head(Yhat)
+```
+
+### 5. Compute e (the residuals)
+
+```{r}
+e <- Y - Yhat
+head(e)
+```
